@@ -65,7 +65,7 @@ public class VisitorController {
     // @Valid : form에서 넘어온 자료를 @Entity에 있는 설정
     // (@Id, @NotBlank, @Column(nullable=false))과 비교해서 입력 data를 검증하는 역할
     // data를 check 해서 bindingReuslt에 error message를 넣어줌
-    @PostMapping("vinsert")
+    @PostMapping("/vinsert")
     @Transactional
     public String vinsert(@Valid Visitor visitor, BindingResult bindingResult, Model model) {
         System.out.println("visitor: " + visitor);

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>방명록 목록</title>
+    <link rel="stylesheet" href="/css/visitor.css">
+    <style>
+        table{
+            margin: 5px auto;
+        }
+        td {
+            border-bottom: 1px dotted black;
+            padding: 10px;
+            text-align: left;
+        }
+        tr:hover {
+            background-color: pink;
+        }
+        td:nth-of-type(1) {width: 80px;}
+        td:nth-of-type(2) {width: 120px;}
+        div {
+            margin: 10px auto;
+            padding: 50px;
+            background: linear-gradient(to bottom, #33ccff 0%, #ff99cc 100%);
+            width: 800px;
+            border-radius: 5px;
+        }
+        .icon-button{
+            border: 0;
+            background: transparent;
+            cursor: pointer;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>방명록 글 리스트</h1>
+    <hr>
+    <div>
+        <table th:if="${vList}">
+            <tr th:each="vo : ${vList}">
+                <td>[[${vo.name}]]</td>
+                <td>[[${vo.writeDate}]]</td>
+                <td>[[${vo.memo}]]</td>
+                <td>
+                    <form th:action="@{/vdelete}" method="post"
+                    onsubmit="return confirm('삭제하시겠습니까?')">
+                        <input type="hidden" name="id" th:value="${vo.id}"/>
+                        <button type="submit" class="icon-button">
+                            <img src="/image/delete.png" width="30" alt="삭제" />
+                        </button>
+                    </form>
+                </td>
+                <td>
+                    <img src="/image/edit.png" width="30" alt="수정"
+                        th:onclick="|displayUpdateForm(${vo.id})|" />
+                </td>
+            </tr>
+        </table>
+        <h3 th:if="${msg}" th:text="${msg}"></h3>
+        <hr>
+        <a href="/visitorMain.html"><button>메인페이지로 돌아가기</button></a>
+    </div>
+</body>
+</html>

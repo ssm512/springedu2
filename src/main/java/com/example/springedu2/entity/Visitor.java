@@ -31,6 +31,7 @@ public class Visitor {
 
     // 작성일  writeDate
     // data 등록일(Created Date) 자동입력 일일이 LocalDateTime.now()를 넣지 않아도 된다
+    // updatable = false : update 할때는 수정하지 마라
     @CreationTimestamp // record가 생성된 시간
     @Column(name="writedate", nullable = false, updatable = false)
     private LocalDate writeDate;

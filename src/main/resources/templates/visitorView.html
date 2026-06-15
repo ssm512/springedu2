@@ -69,7 +69,7 @@
         <h2>글을 수정하세요</h2>
         <hr>
         <form method="post" action="/vupdate">
-            <input type="hidden" name="id" value=""/>
+            <input type="hidden" name="id" id="updateId" value=""/>
             <input type="text" name="name" value="" placeholder="이름" required/><br>
             <textarea name="memo" rows="10" cols="35" required></textarea><br>
             <input type="submit" value="수정" />
@@ -79,10 +79,10 @@
     </div>
 
     <script>
-        var idEl      =   null;
-        var nameEl    =   null;
-        var memoEl    =   null;
-        var prevData  =   null;
+        var updateIdEl      =   null;
+        var nameEl          =   null;
+        var memoEl          =   null;
+        var prevData        =   null;
         // 수정버튼클릭
         function displayUpdateForm( id ) {
             // 서버의 정보 id로 조회 (fetch)
@@ -95,21 +95,21 @@
                 })
                 .then( data => {
                     console.log(data)
-                    prevData        =   data
-                    idEl            =   document.querySelector('[name=id]')
-                    nameEl          =   document.querySelector('[name=name]')
-                    memoEl          =   document.querySelector('[name=memo]')
-                    idEl.value      =   data.id;
-                    nameEl.value    =   data.name;
-                    memoEl.value    =   data.memo;
+                    prevData              =   data
+                    updateIdEl            =   document.querySelector('[id=updateId]')
+                    nameEl                =   document.querySelector('[name=name]')
+                    memoEl                =   document.querySelector('[name=memo]')
+                    updateIdEl.value      =   data.id;
+                    nameEl.value          =   data.name;
+                    memoEl.value          =   data.memo;
                 })
                 .catch( error => alert(error.message) );
             document.getElementById('updateForm').style.display='block'
         }
         function resetForm() {
-            idEl.value          =   prevData.id;
-            nameEl.value        =   prevData.name;
-            memoEl.value        =   prevData.memo;
+            updateIdEl.value            =   prevData.id;
+            nameEl.value                =   prevData.name;
+            memoEl.value                =   prevData.memo;
         }
     </script>
 </body>

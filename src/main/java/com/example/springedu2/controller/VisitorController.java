@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
@@ -60,12 +61,6 @@ public class VisitorController {
         return mv;
     }
 
-    // /vsearch : 검색
-    @GetMapping("/vsearch")
-    public ModelAndView vsearch(){
-        return null;
-    }
-
     // /vinsert : 방명록 추가
     // @Valid : form에서 넘어온 자료를 @Entity에 있는 설정
     // (@Id, @NotBlank, @Column(nullable=false))과 비교해서 입력 data를 검증하는 역할
@@ -97,5 +92,68 @@ public class VisitorController {
                     // 못찾으면 null 대신에 404 코드를 객체로 바꿔서(build()) 리턴한다
     }
 
+    /*
+    // /vupdate 수정 - 1번 방법 save() 사용
+    @PostMapping("/vupdate")
+    public String   vupdate(@Valid Visitor visitor,
+                            BindingResult bindingResult,
+                            Model model, RedirectAttributes redirectAttributes){
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute("mgs", "수정할 이름과 내용을 모두입력하세요");
+            return "redirect:/vlist";
+        }
+        // 수정
+        visitorRepository.save(visitor);
+        return "redirect:/vlist";
+    }
+    */
 
-}
+    // /vupdate 수정 - 2번 방법 @Transactional 사용
+    @PostMapping("/vupdate")
+    @Transactional
+    public String   vupdate(@Valid Visitor visitor,
+                            BindingResult bindingResult,
+                            Model model, RedirectAttributes redirectAttributes) {
+        if(bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute("msg", "수정할 이름과 내용을 모두 입력하세요");
+            return "redirect:/vlist";
+        }
+        Visitor     entity  =   visitorRepository.findById(Long.valueOf(visitor.getId()))
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 방명록 입니다."));
+        entity.setName(visitor.getName());
+        entity.setMemo(visitor.getMemo());
+        // persist-context(1차캐시)에 먼저 값을 들고 있다가, persist-context의 내용과 db와의 내용이 다르면 자동으로 수정 쿼리문이 작성이 됨
+        // 이를 활용해서 save() 기능을 사용하지 않고 update 시킴, 이때 @Transactional 이 필수임
+        // @Transactional을 사용하면 이점이 있음, 2건을 한번에 commit 할때, 첫번쨰는 실패, 두번째는 성공 일때 수정해줌
+        return "redirect:/vlist";
+    }
+
+    // RedirectAttributes 일회성 메세지를 뿌려는 놈, 메세지 정보를 다음 페이지로 넘기는 명령어
+    // /vdelete
+    @PostMapping("/vdelete")
+    @Transactional
+    public String delete( @RequestParam Integer id, RedirectAttributes redirectAttributes ) {
+        if ( !visitorRepository.existsById(Long.valueOf(id)) ) {
+            redirectAttributes.addFlashAttribute("msg", "삭제할 방명록찾을 수 없습니다.");
+            return "redirect:/vlist";
+        }
+        visitorRepository.deleteById(Long.valueOf(id));
+        return "redirect:/vlist";
+    }
+
+    // /vsearch
+    // 검색 : 모두 대문자로 검색어를 포함한 data
+    // 단 정렬은 id를 내림차순으로 출력한다
+    // findByMemoContainingIgnoreCaseOrderByIdDesc(key)
+    @GetMapping("/vsearch")
+    public ModelAndView search (@RequestParam(defaultValue = "") String key) {
+        List<Visitor>   visitors    =   key.isBlank()
+                ? visitorRepository.findAll()   //  isBlank()가 true이면 findAll()을 수행해라
+                : visitorRepository.findByIrum(key);
+                //: visitorRepository.findByMemoContainingIgnoreCaseOrderByIdDesc(key);
+                //: visitorRepository.findByName(key);
+        System.out.println(visitors);
+        return visitorView(visitors, "메인으로 돌아가기");
+    }
+
+} // controller end

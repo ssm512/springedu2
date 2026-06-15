@@ -6,12 +6,15 @@ import com.example.springedu2.repository.VisitorRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.List;
@@ -42,7 +45,7 @@ public class VisitorController {
         return visitorView(visitors, null);
     }
 
-    //
+    // visitorView() 함수
     private ModelAndView visitorView(List<Visitor> visitors, String buttonText ) {
         ModelAndView    mv      =   new ModelAndView("visitorView");
         //mv.setViewName("visitorView"); // visitorView.html(Model사용) - thymeleaf 문법
@@ -57,11 +60,13 @@ public class VisitorController {
         return mv;
     }
 
+    // /vsearch : 검색
     @GetMapping("/vsearch")
     public ModelAndView vsearch(){
         return null;
     }
 
+    // /vinsert : 방명록 추가
     // @Valid : form에서 넘어온 자료를 @Entity에 있는 설정
     // (@Id, @NotBlank, @Column(nullable=false))과 비교해서 입력 data를 검증하는 역할
     // data를 check 해서 bindingReuslt에 error message를 넣어줌
@@ -76,5 +81,19 @@ public class VisitorController {
         }
         visitorRepository.save(visitor); // entity 객체를 사용해야 한다  , save()의 인자는 무조건 entity type을 넣어줘야 함
         return "redirect:/vlist";
+    }
+
+    // /one : 방명록 id 로 조회 : Rest방식 호출, 결과가 json으로 return되어야 함
+    // return 되는 값이 Visitor 객체일때 이것은 json으로 변경되어 다운로드 된다
+    // @ResponseBody : model이 아닌 다른 걸로 return하겠다, message convertor가 숨어있음
+    // return 값이 ResponseEntity<Visitor> 일때는 data는 json으로 상태코드로 리턴가능, 내가 error를 만들수 있음(예를 들어 id가 없어요 같은)
+    // id를 가지고 조회를 했어, 자료가 있으면 ResponseEntity<Visitor>에 닮고 map의
+    @GetMapping(value="/one", produces = "application/json; charset=utf-8")
+    @ResponseBody
+    public ResponseEntity<Visitor> one (@RequestParam Integer id) {
+        return visitorRepository.findById(Long.valueOf(id)) // data를 id로 조회. 있으면 Visitor 리턴
+                .map(ResponseEntity::ok) // 상태 코드 ok 200을 추가해서 리턴
+                .orElseGet(() -> ResponseEntity.notFound().build());
+                    // 못찾으면 null 대신에 404 코드를 객체로 바꿔서(build()) 리턴한다
     }
 }

@@ -96,4 +96,6 @@ public class VisitorController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
                     // 못찾으면 null 대신에 404 코드를 객체로 바꿔서(build()) 리턴한다
     }
+
+
 }

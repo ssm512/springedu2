@@ -73,7 +73,7 @@
             <input type="text" name="name" value="" placeholder="이름" required/><br>
             <textarea name="memo" rows="10" cols="35" required></textarea><br>
             <input type="submit" value="수정" />
-            <input type="reset" value="재작성" onclick="resetForm()" />
+            <input type="reset" value="재작성" onclick="resetForm(); return false" />
             <input type="button" value="취소" onclick="document.getElementById('updateForm').style.display='none'"/>
         </form>
     </div>
@@ -107,7 +107,9 @@
             document.getElementById('updateForm').style.display='block'
         }
         function resetForm() {
-
+            idEl.value          =   prevData.id;
+            nameEl.value        =   prevData.name;
+            memoEl.value        =   prevData.memo;
         }
     </script>
 </body>
